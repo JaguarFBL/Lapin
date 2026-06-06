@@ -1,0 +1,9 @@
+product_id,brand,name,nutrient_id,declared_text,threshold_min,threshold_max,comparison_status
+"PRD_BURGESS_EXCEL_ADULT_RABBIT_MINT","Burgess Excel","Adult Rabbit Nuggets with Mint","calcium","Calcium 0.8%","","1.0","ok"
+"PRD_BURGESS_EXCEL_ADULT_RABBIT_MINT","Burgess Excel","Adult Rabbit Nuggets with Mint","crude_fibre","Crude fibre 21%","18.0","","ok"
+"PRD_BURGESS_EXCEL_ADULT_RABBIT_MINT","Burgess Excel","Adult Rabbit Nuggets with Mint","crude_protein","Crude protein 12%","","16.0","ok"
+"PRD_BURGESS_EXCEL_ADULT_RABBIT_MINT","Burgess Excel","Adult Rabbit Nuggets with Mint","fat","Crude oils and fats 3%","","2.5","above_max"
+"PRD_OXBOW_ESSENTIALS_ADULT_RABBIT","Oxbow","Essentials Adult Rabbit Food","calcium","Calcium min 0.35% max 0.75%","","1.0","ok"
+"PRD_OXBOW_ESSENTIALS_ADULT_RABBIT","Oxbow","Essentials Adult Rabbit Food","crude_fibre","Crude Fiber min 25.00% max 29.00%","18.0","","ok"
+"PRD_OXBOW_ESSENTIALS_ADULT_RABBIT","Oxbow","Essentials Adult Rabbit Food","crude_protein","Crude Protein min 14.00%","","16.0","cannot_confirm_upper_bound"
+"PRD_OXBOW_ESSENTIALS_ADULT_RABBIT","Oxbow","Essentials Adult Rabbit Food","fat","Crude Fat min 2.00%","","2.5","cannot_confirm_upper_bound"

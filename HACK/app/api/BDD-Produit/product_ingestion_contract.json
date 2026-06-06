@@ -1,0 +1,97 @@
+{
+  "schema_version": "1.0",
+  "created_at": "2026-06-06",
+  "purpose": "Ingest rabbit/NAC product labels into local product database for deterministic comparison with rabbit requirements.",
+  "source_priority": [
+    "SRC_OPENPETFOODFACTS",
+    "SRC_OPENFOODFACTS",
+    "SRC_OPENPRODUCTSFACTS",
+    "SRC_USDA_FDC",
+    "SRC_FOODREPO",
+    "SRC_MANUFACTURER_PAGE",
+    "SRC_RETAILER_PAGE",
+    "SRC_USER_OCR"
+  ],
+  "api_endpoints": {
+    "openpetfoodfacts": "https://world.openpetfoodfacts.org/api/v2/product/{barcode}.json",
+    "openfoodfacts": "https://world.openfoodfacts.org/api/v2/product/{barcode}.json",
+    "openproductsfacts": "https://world.openproductsfacts.org/api/v2/product/{barcode}.json",
+    "usda_fdc": "https://api.nal.usda.gov/fdc/v1/foods/search?query={barcode}&api_key={api_key}",
+    "foodrepo": "https://www.foodrepo.org/api/v3/products?barcode={barcode}"
+  },
+  "required_http_headers": {
+    "User-Agent": "AppLapin/0.1 (contact@example.com)"
+  },
+  "product_required_fields": [
+    "name",
+    "brand",
+    "product_type",
+    "target_species",
+    "source_record_id"
+  ],
+  "nutrient_core_for_rabbit_pellet_score_v1": [
+    "crude_fibre",
+    "crude_protein",
+    "fat",
+    "calcium",
+    "phosphorus"
+  ],
+  "optional_nutrients": [
+    "starch",
+    "sugar",
+    "ash",
+    "moisture",
+    "sodium",
+    "vitamin_a",
+    "vitamin_d",
+    "vitamin_e",
+    "copper",
+    "zinc",
+    "selenium"
+  ],
+  "canonical_nutrient_map": {
+    "crude fiber": "crude_fibre",
+    "crude fibre": "crude_fibre",
+    "fiber": "crude_fibre",
+    "fibre brute": "crude_fibre",
+    "cellulose brute": "crude_fibre",
+    "crude protein": "crude_protein",
+    "proteines brutes": "crude_protein",
+    "protein": "crude_protein",
+    "crude fat": "fat",
+    "crude oils and fats": "fat",
+    "matieres grasses brutes": "fat",
+    "fat content": "fat",
+    "calcium": "calcium",
+    "phosphorus": "phosphorus",
+    "phosphorous": "phosphorus",
+    "phosphore": "phosphorus",
+    "crude ash": "ash",
+    "cendres brutes": "ash",
+    "moisture": "moisture",
+    "humidite": "moisture"
+  },
+  "value_type_rules": {
+    "min": "Lower bound only. Do not use it to prove compliance with a maximum threshold.",
+    "max": "Upper bound only. Do not use it to prove compliance with a minimum threshold.",
+    "range": "Both lower and upper bounds are available.",
+    "exact": "Analytical constituent is treated as exact label value, not lab verified value."
+  },
+  "comparison_rules": [
+    "Only compare mapped nutrients.",
+    "Only compare when unit is compatible.",
+    "Use product thresholds where basis equals commercial_uniform_pellet for uniform pellets.",
+    "If requirement has min_value, product lower bound must be >= min_value.",
+    "If requirement has max_value, product upper bound must be <= max_value.",
+    "If only a lower bound exists on the product and the threshold is a maximum, return cannot_confirm_upper_bound, not ok.",
+    "Never use ingredient composition rows as requirements."
+  ],
+  "confidence_policy": {
+    "manufacturer_page": "high",
+    "openpetfoodfacts_with_label_photo": "medium_high",
+    "openpetfoodfacts_without_label_photo": "medium",
+    "retailer_page": "medium",
+    "ocr_user_photo": "low_medium",
+    "barcode_lookup_only": "do_not_score"
+  }
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "condition": "Le lapin a des antécédents de calculs urinaires (sablose, urolithiase).",
+    "rule": "Limiter le calcium au minimum vital. Le calcium_max absolu doit être réduit à 250 mg/100g. Bannir luzerne et trèfle."
+  },
+  {
+    "condition": "Le lapin a moins de 1 an (lapereau ou en croissance).",
+    "rule": "Les besoins en calcium sont plus élevés pour la croissance osseuse. Le calcium toléré peut être élargi (ex: 400-1000 mg/100g). Le sucre toléré est légèrement supérieur (jusqu'à 10g/100g)."
+  },
+  {
+    "condition": "Le lapin est en surpoids (poids > 3.5 kg pour une race moyenne/naine).",
+    "rule": "Le sucre (amidon) doit être strictement contrôlé et réduit à 4g/100g maximum pour favoriser la perte de poids."
+  },
+  {
+    "condition": "Le lapin a une allergie déclarée à un ingrédient.",
+    "rule": "Rejet immédiat et absolu si l'ingrédient allergène est présent dans le produit."
+  },
+  {
+    "condition": "Règle générale sur les céréales.",
+    "rule": "Les céréales (blé, maïs, avoine, orge, amidon, etc.) sont toxiques pour le système digestif des lapins (sauf cas médical très spécifique). Si présentes, le produit est inadapté."
+  }
+]

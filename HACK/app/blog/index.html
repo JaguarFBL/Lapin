@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rabbit Alert - Veille Lapin</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f0eb; color: #2d2a24; line-height: 1.6; }
+  .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+  header { background: linear-gradient(135deg, #5b4033 0%, #8b6f5a 100%); color: #fff; padding: 40px 0 30px; text-align: center; }
+  header h1 { font-size: 2em; margin-bottom: 6px; }
+  header p { opacity: .85; font-size: .95em; }
+  .meta { text-align: center; color: #7a6b5e; font-size: .85em; margin: 12px 0 24px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: .75em; font-weight: 600; text-transform: uppercase; }
+  .badge-recall { background: #e74c3c; color: #fff; }
+  .badge-health { background: #2ecc71; color: #fff; }
+  .badge-news { background: #3498db; color: #fff; }
+  article { background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  article h2 { font-size: 1.15em; margin-bottom: 6px; }
+  article h2 a { color: #2d2a24; text-decoration: none; }
+  article h2 a:hover { color: #5b4033; text-decoration: underline; }
+  article .source { font-size: .8em; color: #8b7f72; }
+  article .source span { color: #5b4033; font-weight: 600; }
+  article .desc { margin-top: 6px; font-size: .92em; color: #4a4238; }
+  article .date { font-size: .78em; color: #a09284; margin-top: 8px; }
+  footer { text-align: center; padding: 30px 0; color: #a09284; font-size: .82em; }
+  .empty { text-align: center; padding: 60px 20px; color: #8b7f72; }
+  @media (max-width: 600px) { header h1 { font-size: 1.5em; } .container { padding: 12px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1>🐇 Rabbit Alert</h1>
+    <p>Veille automatique : rappels produits & actualités lapin</p>
+  </div>
+</header>
+<div class="container">
+  <div class="meta">
+    Dernière mise à jour : 06/06/2026 à 15:32 &middot; 3 articles
+  </div>
+  <article>
+  <span class="badge badge-recall">Rappel</span>
+  <h2><a href="https://example.com/rappel-lapin-1" target="_blank" rel="noopener">RAPPEL PRODUIT: Marque X pelleted rabbit food</a></h2>
+  <div class="source">Source : <span>DGCCRF</span> &middot; 05/06/2026</div>
+  <div class="desc">Rappel de lots de granulés pour lapins en raison d'un taux de calcium trop élevé détecté lors de contrôles vétérinaires.</div>
+  <div class="desc" style="margin-top:4px;font-style:italic;color:#6b6054;">Rappel de granulés pour cause de calcium excessif.</div>
+</article><article>
+  <span class="badge badge-health">Santé</span>
+  <h2><a href="https://example.com/etude-lapin-2025" target="_blank" rel="noopener">Nouvelle étude: l'alimentation du lapin domestique</a></h2>
+  <div class="source">Source : <span>CHUV</span> &middot; 04/06/2026</div>
+  <div class="desc">Une étude CHUV 2025 révèle l'importance des fibres longues dans la prévention des troubles digestifs chez le lapin nain.</div>
+  <div class="desc" style="margin-top:4px;font-style:italic;color:#6b6054;">Étude sur les fibres dans l'alimentation du lapin.</div>
+</article><article>
+  <span class="badge badge-recall">Rappel</span>
+  <h2><a href="https://example.com/rappel-foin" target="_blank" rel="noopener">Rappel de foin contaminé dans 3 départements</a></h2>
+  <div class="source">Source : <span>RappelConso</span> &middot; 03/06/2026</div>
+  <div class="desc">Du foin destiné aux rongeurs et lapins a été retiré de la vente pour suspicion de moisissures toxiques.</div>
+  <div class="desc" style="margin-top:4px;font-style:italic;color:#6b6054;">Foin retiré pour suspicion de moisissures.</div>
+</article>
+</div>
+<footer>
+  <div class="container">
+    Généré automatiquement par Rabbit Alert Agent &middot; Sources : NewsAPI
+  </div>
+</footer>
+</body>
+</html>

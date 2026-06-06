@@ -1,0 +1,12 @@
+nutrient_key,reason,status
+sugar,Aucune valeur adulte chiffrée exploitable trouvée dans les sources retenues.,missing_numeric_value
+moisture_requirement,"Pas de besoin chiffré direct, sauf base FEDIAF à 12 % d'humidité et eau en ml/kg/jour.",missing_numeric_value
+ash_requirement,Pas de besoin adulte chiffré direct.,missing_numeric_value
+histidine_adult,FEDIAF indique n/d.,not_determined
+isoleucine_adult,FEDIAF indique n/d.,not_determined
+leucine_adult,FEDIAF indique n/d.,not_determined
+phenylalanine_tyrosine_adult,FEDIAF indique n/d.,not_determined
+tryptophan_adult,FEDIAF indique n/d.,not_determined
+valine_adult,FEDIAF indique n/d.,not_determined
+vitamin_c_adult,FEDIAF indique n/d pour adulte.,not_determined
+b_group_adult,FEDIAF indique n/d.,not_determined

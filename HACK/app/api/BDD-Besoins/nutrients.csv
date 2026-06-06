@@ -1,0 +1,48 @@
+id,canonical_name,display_name_fr,category,synonyms
+crude_protein,crude_protein,Proteines brutes,protein,"[""protein"", ""total_protein"", ""proteine_brute""]"
+digestible_protein,digestible_protein,Proteines digestibles,protein,[]
+arginine,arginine,Arginine,amino_acid,[]
+glycine,glycine,Glycine,amino_acid,[]
+lysine,lysine,Lysine,amino_acid,[]
+methionine_cystine,methionine_cystine,Methionine + cystine,amino_acid,"[""methionine+cystine"", ""met_cys""]"
+threonine,threonine,Threonine,amino_acid,[]
+starch,starch,Amidon,carbohydrate,[]
+adf,adf,ADF,fiber,"[""acid_detergent_fiber"", ""fibre_detergent_acide""]"
+ndf,ndf,NDF,fiber,"[""neutral_detergent_fiber"", ""fibre_detergent_neutre""]"
+adl,adl,ADL,fiber,"[""acid_detergent_lignin"", ""lignine_detergent_acide""]"
+fibre_ratio_non_adf_to_adf,fibre_ratio_non_adf_to_adf,Ratio non-ADF/ADF,fiber_ratio,[]
+adf_minus_adl,adf_minus_adl,ADF moins ADL,fiber,[]
+crude_fibre,crude_fibre,Fibres brutes,fiber,"[""crude_fiber"", ""fibre_brute""]"
+fat,fat,Matieres grasses,fat,"[""ether_extract"", ""lipides""]"
+calcium,calcium,Calcium,mineral,"[""ca""]"
+phosphorus,phosphorus,Phosphore,mineral,"[""p""]"
+calcium_phosphorus_ratio,calcium_phosphorus_ratio,Ratio calcium/phosphore,mineral_ratio,"[""ca_p_ratio""]"
+potassium,potassium,Potassium,mineral,"[""k""]"
+sodium,sodium,Sodium,mineral,"[""na""]"
+chloride,chloride,Chlorure,mineral,"[""cl""]"
+magnesium,magnesium,Magnesium,mineral,"[""mg""]"
+copper,copper,Cuivre,trace_element,"[""cu""]"
+iodine,iodine,Iode,trace_element,"[""i""]"
+iron,iron,Fer,trace_element,"[""fe""]"
+cobalt,cobalt,Cobalt,trace_element,"[""co""]"
+manganese,manganese,Manganese,trace_element,"[""mn""]"
+selenium,selenium,Selenium,trace_element,"[""se""]"
+zinc,zinc,Zinc,trace_element,"[""zn""]"
+vitamin_a,vitamin_a,Vitamine A,vitamin,[]
+vitamin_d,vitamin_d,Vitamine D,vitamin,[]
+vitamin_e,vitamin_e,Vitamine E,vitamin,[]
+vitamin_k,vitamin_k,Vitamine K,vitamin,[]
+digestible_energy,digestible_energy,Energie digestible,energy,"[""de""]"
+metabolizable_energy,metabolizable_energy,Energie metabolisable,energy,"[""me""]"
+dry_matter_intake,dry_matter_intake,Ingestion de matiere seche,intake,[]
+hay_fraction,hay_fraction,Part de foin/fourrage,practical_ration,[]
+water_intake,water_intake,Consommation d'eau,water,[]
+digestible_carbohydrate_nfe,digestible_carbohydrate_nfe,Glucides digestibles NFE,carbohydrate,"[""nitrogen_free_extract""]"
+total_digestible_nutrient,total_digestible_nutrient,Total digestible nutrients,energy,"[""tdn""]"
+pellets,pellets,Granules,practical_ration,[]
+fresh_greens,fresh_greens,Verdure fraiche,practical_ration,[]
+fruit_treat,fruit_treat,Friandise fruit,practical_ration,[]
+dry_matter,dry_matter,Matiere seche,proximate,[]
+ash,ash,Cendres brutes,proximate,[]
+gross_energy,gross_energy,Energie brute,energy,[]
+ether_extract,ether_extract,Extrait ethere,fat,[]

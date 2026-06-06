@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/schemas/rabbit-knowledge-pack.schema.json",
+  "title": "RabbitKnowledgePack",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "pack_id",
+    "sources",
+    "species",
+    "animal_profiles",
+    "nutrients",
+    "nutrient_requirements"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "pack_id": {
+      "type": "string"
+    },
+    "created_at": {
+      "type": "string"
+    },
+    "sources": {
+      "type": "array"
+    },
+    "species": {
+      "type": "array"
+    },
+    "animal_profiles": {
+      "type": "array"
+    },
+    "nutrients": {
+      "type": "array"
+    },
+    "nutrient_requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "species_id",
+          "animal_profile_id",
+          "nutrient_id",
+          "unit",
+          "basis",
+          "source_id",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "species_id": {
+            "type": "string"
+          },
+          "animal_profile_id": {
+            "type": "string"
+          },
+          "nutrient_id": {
+            "type": "string"
+          },
+          "requirement_type": {
+            "type": "string"
+          },
+          "min_value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "target_value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "max_value": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "unit": {
+            "type": "string"
+          },
+          "basis": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          },
+          "source_metric": {
+            "type": "string"
+          },
+          "confidence_level": {
+            "type": "string"
+          },
+          "review_status": {
+            "type": "string"
+          },
+          "priority": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "ingredient_compositions": {
+      "type": "array"
+    },
+    "do_not_integrate": {
+      "type": "array"
+    },
+    "normalization_notes": {
+      "type": "array"
+    }
+  }
+}

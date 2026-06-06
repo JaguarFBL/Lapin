@@ -1,0 +1,5 @@
+id,note
+NOTE_BASIS_CRITICAL,"Always compare product values only when unit and basis are compatible. For example, % as_fed should not be compared blindly against % dry_matter or feed_12pct_moisture_total_diet."
+NOTE_FEDIAF_PRIMARY,"For rabbit_adult_maintenance nutrient scoring, FEDIAF rows with priority=primary should be preferred over secondary clinical summaries when conflicts exist."
+NOTE_FEEDIPEDIA_NOT_REQUIREMENT,Feedipedia alfalfa values are ingredient composition records. They are not rabbit requirements.
+NOTE_REVIEW_STATUS,review_status=extracted_from_source means extracted and structured from documented sources. It is not a veterinary sign-off.

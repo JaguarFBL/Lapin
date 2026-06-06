@@ -1,0 +1,712 @@
+{
+  "schema_version": "1.0",
+  "scoring_version": "rabbit_scoring_rules_v0_1",
+  "created_at": "2026-06-06",
+  "species_id": "rabbit",
+  "animal_profile_id": "rabbit_adult_maintenance",
+  "status": "v1_project_rules_not_veterinary_signed_off",
+  "purpose": "Score commercial rabbit products using product-role-aware sub-scores. All products can be scored, but interpretation depends on product_type.",
+  "source_dependency": {
+    "requirements_pack": "rabbit_knowledge_pack_2026_1",
+    "preferred_requirement_priority": "primary",
+    "warning": "Compare values only when unit and basis are compatible. Convert before scoring when possible.",
+    "do_not_infer_missing_values": true
+  },
+  "core_principles": [
+    "Do not exclude treats: score them as treats, not as complete daily food.",
+    "Do not allow a good pellet score to imply pellets should be the main diet.",
+    "Hay/forage remains the base of rabbit adult maintenance feeding.",
+    "Nutritional score must be deterministic; AI can explain but should not invent thresholds.",
+    "Missing data should reduce confidence and sometimes cap the score, but should not be treated as proof of danger.",
+    "Ingredient composition records are context only, not rabbit requirements."
+  ],
+  "input_contract": {
+    "required_fields": [
+      "product_id",
+      "name",
+      "brand",
+      "product_type",
+      "target_species",
+      "declared_nutrients",
+      "ingredients",
+      "data_sources"
+    ],
+    "recommended_fields": [
+      "barcode",
+      "moisture",
+      "basis",
+      "label_claims",
+      "life_stage_claim",
+      "is_complete_feed",
+      "is_complementary_feed",
+      "is_muesli_or_mix",
+      "data_confidence"
+    ],
+    "accepted_product_types": [
+      "hay",
+      "pellet_uniform",
+      "muesli_mix",
+      "treat",
+      "fresh_greens",
+      "supplement",
+      "unknown"
+    ]
+  },
+  "score_blocks": [
+    {
+      "id": "role_and_species_fit",
+      "label_fr": "Cohérence produit / espèce / usage",
+      "max_points": 15,
+      "applies_to": "all",
+      "rules": [
+        {
+          "id": "species_explicit_rabbit",
+          "description_fr": "Produit explicitement destiné au lapin.",
+          "condition": "target_species contains rabbit",
+          "points": 8
+        },
+        {
+          "id": "multi_species_penalty",
+          "description_fr": "Produit multi-espèces NAC : moins fiable pour un lapin adulte.",
+          "condition": "target_species contains rabbit AND target_species contains non_rabbit_species",
+          "points": 5
+        },
+        {
+          "id": "not_for_rabbit",
+          "description_fr": "Produit non destiné au lapin.",
+          "condition": "target_species does not contain rabbit",
+          "points": 0,
+          "cap_score": 20
+        },
+        {
+          "id": "product_role_known",
+          "description_fr": "Type de produit exploitable pour choisir la bonne grille.",
+          "condition": "product_type in accepted_product_types AND product_type != unknown",
+          "points": 4
+        },
+        {
+          "id": "adult_or_unspecified_ok",
+          "description_fr": "Produit adapté adulte ou sans revendication contradictoire.",
+          "condition": "life_stage_claim in ['adult','all_life_stages','unspecified']",
+          "points": 3
+        },
+        {
+          "id": "juvenile_breeding_claim_cap",
+          "description_fr": "Produit orienté croissance, gestation ou lactation : prudence pour adulte entretien.",
+          "condition": "life_stage_claim in ['junior','growth','pregnant','lactating','breeding']",
+          "points": 1,
+          "cap_score": 75
+        }
+      ]
+    },
+    {
+      "id": "nutritional_fit",
+      "label_fr": "Adéquation nutritionnelle",
+      "max_points": 45,
+      "applies_to": "product_type_specific",
+      "description_fr": "Bloc central. Les seuils changent selon le rôle du produit.",
+      "product_type_rules": {
+        "hay": {
+          "max_points": 45,
+          "rules": [
+            {
+              "id": "hay_is_grass_or_timothy",
+              "description_fr": "Foin de graminées / fléole / prairie : profil adapté adulte.",
+              "condition": "ingredients contains grass_hay OR timothy_hay OR meadow_hay OR orchard_grass",
+              "points": 16
+            },
+            {
+              "id": "hay_alfalfa_adult_penalty",
+              "description_fr": "Luzerne en base : trop riche pour beaucoup de lapins adultes d'entretien.",
+              "condition": "ingredients contains alfalfa AND product_type == hay",
+              "points": 4,
+              "cap_score": 70
+            },
+            {
+              "id": "hay_crude_fibre_high",
+              "description_fr": "Fibres brutes élevées si déclarées.",
+              "nutrient": "crude_fibre",
+              "condition": "value >= 25%",
+              "points": 12
+            },
+            {
+              "id": "hay_crude_fibre_medium",
+              "description_fr": "Fibres correctes si déclarées.",
+              "nutrient": "crude_fibre",
+              "condition": "20% <= value < 25%",
+              "points": 8
+            },
+            {
+              "id": "hay_crude_fibre_low",
+              "description_fr": "Fibres faibles pour un foin.",
+              "nutrient": "crude_fibre",
+              "condition": "value < 20%",
+              "points": 2,
+              "cap_score": 65
+            },
+            {
+              "id": "hay_fat_low",
+              "nutrient": "fat",
+              "condition": "value <= 3%",
+              "points": 5
+            },
+            {
+              "id": "hay_calcium_not_excessive",
+              "nutrient": "calcium",
+              "condition": "value <= 1.0%",
+              "points": 5
+            },
+            {
+              "id": "hay_no_sugary_additions",
+              "condition": "ingredients has no added_sugar_family",
+              "points": 7
+            }
+          ]
+        },
+        "pellet_uniform": {
+          "max_points": 45,
+          "rules": [
+            {
+              "id": "pellet_fibre_excellent",
+              "nutrient": "crude_fibre",
+              "condition": "value >= 20%",
+              "points": 16
+            },
+            {
+              "id": "pellet_fibre_good",
+              "nutrient": "crude_fibre",
+              "condition": "18% <= value < 20%",
+              "points": 13
+            },
+            {
+              "id": "pellet_fibre_borderline",
+              "nutrient": "crude_fibre",
+              "condition": "14% <= value < 18%",
+              "points": 6,
+              "cap_score": 70
+            },
+            {
+              "id": "pellet_fibre_bad",
+              "nutrient": "crude_fibre",
+              "condition": "value < 14%",
+              "points": 0,
+              "cap_score": 55
+            },
+            {
+              "id": "pellet_protein_ok",
+              "nutrient": "crude_protein",
+              "condition": "12% <= value <= 16%",
+              "points": 7
+            },
+            {
+              "id": "pellet_protein_high",
+              "nutrient": "crude_protein",
+              "condition": "16% < value <= 18%",
+              "points": 3,
+              "cap_score": 80
+            },
+            {
+              "id": "pellet_protein_very_high",
+              "nutrient": "crude_protein",
+              "condition": "value > 18%",
+              "points": 0,
+              "cap_score": 65
+            },
+            {
+              "id": "pellet_fat_ok",
+              "nutrient": "fat",
+              "condition": "value <= 2.5%",
+              "points": 7
+            },
+            {
+              "id": "pellet_fat_moderate",
+              "nutrient": "fat",
+              "condition": "2.5% < value <= 5%",
+              "points": 3,
+              "cap_score": 80
+            },
+            {
+              "id": "pellet_fat_high",
+              "nutrient": "fat",
+              "condition": "value > 5%",
+              "points": 0,
+              "cap_score": 60
+            },
+            {
+              "id": "pellet_calcium_ok",
+              "nutrient": "calcium",
+              "condition": "value <= 1.0%",
+              "points": 5
+            },
+            {
+              "id": "pellet_calcium_high",
+              "nutrient": "calcium",
+              "condition": "value > 1.0%",
+              "points": 0,
+              "cap_score": 65
+            },
+            {
+              "id": "pellet_ca_p_ratio_ok",
+              "nutrient": "calcium_phosphorus_ratio",
+              "condition": "1.5 <= value <= 2.0",
+              "points": 5
+            },
+            {
+              "id": "pellet_starch_ok_if_declared",
+              "nutrient": "starch",
+              "condition": "value <= 20%",
+              "points": 3
+            },
+            {
+              "id": "pellet_starch_high_if_declared",
+              "nutrient": "starch",
+              "condition": "value > 20%",
+              "points": 0,
+              "cap_score": 70
+            },
+            {
+              "id": "pellet_uniform_shape",
+              "condition": "is_muesli_or_mix == false",
+              "points": 2
+            }
+          ]
+        },
+        "muesli_mix": {
+          "max_points": 45,
+          "rules": [
+            {
+              "id": "muesli_base_penalty",
+              "description_fr": "Mélange favorisant le tri alimentaire. Score plafonné même si l'étiquette paraît correcte.",
+              "condition": "product_type == muesli_mix OR is_muesli_or_mix == true",
+              "points": 5,
+              "cap_score": 65
+            },
+            {
+              "id": "muesli_fibre_acceptance",
+              "nutrient": "crude_fibre",
+              "condition": "value >= 18%",
+              "points": 8
+            },
+            {
+              "id": "muesli_no_visible_sugary_bits",
+              "condition": "ingredients has no fruit_piece AND no molasses AND no honey AND no added_sugar",
+              "points": 8
+            },
+            {
+              "id": "muesli_no_seeds_nuts",
+              "condition": "ingredients has no seed AND no nut",
+              "points": 6
+            },
+            {
+              "id": "muesli_fat_ok",
+              "nutrient": "fat",
+              "condition": "value <= 2.5%",
+              "points": 5
+            },
+            {
+              "id": "muesli_calcium_ok",
+              "nutrient": "calcium",
+              "condition": "value <= 1.0%",
+              "points": 5
+            }
+          ]
+        },
+        "treat": {
+          "max_points": 45,
+          "rules": [
+            {
+              "id": "treat_herb_hay_based",
+              "description_fr": "Friandise à base de foin, herbes ou feuilles simples.",
+              "condition": "ingredients primary_category in ['hay','grass','herb','leaf']",
+              "points": 13
+            },
+            {
+              "id": "treat_fibre_good",
+              "nutrient": "crude_fibre",
+              "condition": "value >= 18%",
+              "points": 10
+            },
+            {
+              "id": "treat_fibre_unknown",
+              "nutrient": "crude_fibre",
+              "condition": "missing",
+              "points": 2,
+              "cap_score": 70
+            },
+            {
+              "id": "treat_fat_ok",
+              "nutrient": "fat",
+              "condition": "value <= 3%",
+              "points": 6
+            },
+            {
+              "id": "treat_fat_high",
+              "nutrient": "fat",
+              "condition": "value > 5%",
+              "points": 0,
+              "cap_score": 55
+            },
+            {
+              "id": "treat_sugar_free",
+              "condition": "ingredients has no added_sugar_family",
+              "points": 9
+            },
+            {
+              "id": "treat_fruit_or_carrot_base",
+              "description_fr": "Fruit/carotte en base : à limiter, même si naturel.",
+              "condition": "ingredients primary_category in ['fruit','carrot','dried_fruit']",
+              "points": 3,
+              "cap_score": 60
+            },
+            {
+              "id": "treat_no_cereal_base",
+              "condition": "ingredients primary_category not in ['cereal','grain','flour','bakery']",
+              "points": 4
+            },
+            {
+              "id": "treat_no_dairy_egg_honey",
+              "condition": "ingredients has no dairy AND no egg AND no honey",
+              "points": 3
+            }
+          ],
+          "interpretation_warning_fr": "Même bien notée, une friandise reste occasionnelle et ne remplace jamais le foin."
+        },
+        "fresh_greens": {
+          "max_points": 45,
+          "rules": [
+            {
+              "id": "greens_safe_leafy",
+              "condition": "ingredients primary_category in ['leafy_green','herb'] AND not toxic_plant",
+              "points": 20
+            },
+            {
+              "id": "greens_not_sugary_fruit",
+              "condition": "ingredients primary_category not in ['fruit','dried_fruit']",
+              "points": 10
+            },
+            {
+              "id": "greens_not_high_oxalate_calcium_flag",
+              "condition": "ingredient_risk not in ['high_oxalate','high_calcium_frequent_use']",
+              "points": 5
+            },
+            {
+              "id": "greens_single_safe_item",
+              "condition": "single_ingredient == true AND known_safe_for_rabbit == true",
+              "points": 5
+            },
+            {
+              "id": "greens_no_sauce_seasoning",
+              "condition": "ingredients has no salt AND no oil AND no seasoning AND no sauce",
+              "points": 5
+            }
+          ]
+        },
+        "supplement": {
+          "max_points": 45,
+          "rules": [
+            {
+              "id": "supplement_vet_or_specific_need",
+              "condition": "label_claims contains veterinary_use OR specific_deficiency_use",
+              "points": 10
+            },
+            {
+              "id": "supplement_no_routine_claim",
+              "condition": "label_claims does not imply routine_needed_for_all_rabbits",
+              "points": 8
+            },
+            {
+              "id": "supplement_dose_clear",
+              "condition": "feeding_dose is present",
+              "points": 8
+            },
+            {
+              "id": "supplement_no_excess_vitamin_d_calcium",
+              "condition": "vitamin_d <= safe_upper_limit AND calcium <= safe_upper_limit when dosage_applied",
+              "points": 10
+            },
+            {
+              "id": "supplement_ingredients_safe",
+              "condition": "ingredients has no unsafe_ingredient",
+              "points": 9
+            }
+          ],
+          "interpretation_warning_fr": "Un complément ne doit pas être recommandé automatiquement sans besoin identifié."
+        },
+        "unknown": {
+          "max_points": 45,
+          "rules": [
+            {
+              "id": "unknown_limited_scoring",
+              "condition": "product_type == unknown",
+              "points": 5,
+              "cap_score": 45
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "risk_ingredients_and_red_flags",
+      "label_fr": "Ingrédients à risque et signaux rouges",
+      "max_points": 20,
+      "applies_to": "all",
+      "start_points": 20,
+      "deductions": [
+        {
+          "id": "added_sugar_family",
+          "description_fr": "Sucre, sirop, mélasse, miel, glucose, fructose, dextrose.",
+          "condition": "ingredients contains added_sugar_family",
+          "deduct": 8,
+          "cap_score": 70
+        },
+        {
+          "id": "dairy_or_egg",
+          "description_fr": "Produits laitiers ou oeufs dans un produit lapin.",
+          "condition": "ingredients contains dairy OR egg",
+          "deduct": 10,
+          "cap_score": 55
+        },
+        {
+          "id": "seeds_or_nuts",
+          "description_fr": "Graines/noix grasses, surtout en friandise ou mélange.",
+          "condition": "ingredients contains seed OR nut",
+          "deduct": 6,
+          "cap_score": 70
+        },
+        {
+          "id": "cereal_or_flour_base",
+          "description_fr": "Base céréales/farine : plus critique pour friandises et muesli.",
+          "condition": "primary_ingredient_category in ['cereal','grain','flour','bakery']",
+          "deduct": 6,
+          "cap_score": 75
+        },
+        {
+          "id": "artificial_color",
+          "description_fr": "Colorants artificiels non utiles nutritionnellement.",
+          "condition": "ingredients contains artificial_color",
+          "deduct": 3
+        },
+        {
+          "id": "salt_or_oil_added",
+          "description_fr": "Sel ou huile ajoutée non justifiée.",
+          "condition": "ingredients contains added_salt OR added_oil",
+          "deduct": 4
+        },
+        {
+          "id": "toxic_or_forbidden_ingredient",
+          "description_fr": "Ingrédient connu comme toxique/non adapté au lapin.",
+          "condition": "ingredients contains toxic_for_rabbit",
+          "deduct": 20,
+          "cap_score": 10
+        }
+      ]
+    },
+    {
+      "id": "label_transparency",
+      "label_fr": "Transparence et exploitabilité de l'étiquette",
+      "max_points": 15,
+      "applies_to": "all",
+      "rules": [
+        {
+          "id": "has_ingredient_list",
+          "condition": "ingredients present",
+          "points": 3
+        },
+        {
+          "id": "has_crude_fibre",
+          "condition": "declared_nutrients contains crude_fibre",
+          "points": 3
+        },
+        {
+          "id": "has_protein_fat_ash",
+          "condition": "declared_nutrients contains crude_protein AND fat AND ash",
+          "points": 3
+        },
+        {
+          "id": "has_calcium_phosphorus",
+          "condition": "declared_nutrients contains calcium AND phosphorus",
+          "points": 3
+        },
+        {
+          "id": "has_advanced_fibre_or_starch",
+          "condition": "declared_nutrients contains adf OR ndf OR adl OR starch",
+          "points": 2
+        },
+        {
+          "id": "has_moisture_or_basis",
+          "condition": "declared_nutrients contains moisture OR basis specified",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "data_confidence",
+      "label_fr": "Confiance des données",
+      "max_points": 5,
+      "applies_to": "all",
+      "rules": [
+        {
+          "id": "manufacturer_or_verified_database",
+          "condition": "data_source in ['manufacturer_label','manufacturer_website','verified_database','manual_verified']",
+          "points": 5
+        },
+        {
+          "id": "open_database_unverified",
+          "condition": "data_source == open_database_unverified",
+          "points": 3
+        },
+        {
+          "id": "ocr_only",
+          "condition": "data_source == ocr AND ocr_confidence >= 0.85",
+          "points": 2
+        },
+        {
+          "id": "low_confidence",
+          "condition": "data_confidence == low",
+          "points": 0,
+          "cap_score": 60
+        }
+      ]
+    }
+  ],
+  "global_caps": [
+    {
+      "id": "not_for_rabbit_cap",
+      "condition": "target_species does not contain rabbit",
+      "cap_score": 20,
+      "message_fr": "Produit non destiné aux lapins."
+    },
+    {
+      "id": "toxic_ingredient_cap",
+      "condition": "ingredients contains toxic_for_rabbit",
+      "cap_score": 10,
+      "message_fr": "Ingrédient incompatible ou dangereux pour le lapin."
+    },
+    {
+      "id": "no_nutritional_data_cap",
+      "condition": "declared_nutrients empty AND product_type in ['pellet_uniform','muesli_mix','treat','supplement']",
+      "cap_score": 40,
+      "message_fr": "Données nutritionnelles insuffisantes."
+    },
+    {
+      "id": "no_fibre_for_processed_product_cap",
+      "condition": "crude_fibre missing AND product_type in ['pellet_uniform','muesli_mix','treat']",
+      "cap_score": 70,
+      "message_fr": "Fibres non vérifiables."
+    },
+    {
+      "id": "pellet_low_fibre_cap",
+      "condition": "product_type == pellet_uniform AND crude_fibre < 18%",
+      "cap_score": 70,
+      "message_fr": "Fibres insuffisantes pour un granulé lapin adulte."
+    },
+    {
+      "id": "pellet_very_low_fibre_cap",
+      "condition": "product_type == pellet_uniform AND crude_fibre < 14%",
+      "cap_score": 55,
+      "message_fr": "Fibres très insuffisantes."
+    },
+    {
+      "id": "muesli_cap",
+      "condition": "product_type == muesli_mix OR is_muesli_or_mix == true",
+      "cap_score": 65,
+      "message_fr": "Mélange susceptible de favoriser le tri alimentaire."
+    },
+    {
+      "id": "treat_daily_food_cap",
+      "condition": "product_type == treat AND label_claims contains complete_feed",
+      "cap_score": 45,
+      "message_fr": "Friandise présentée comme aliment complet : incohérence d'usage."
+    },
+    {
+      "id": "unknown_type_cap",
+      "condition": "product_type == unknown",
+      "cap_score": 45,
+      "message_fr": "Type de produit inconnu, note limitée."
+    },
+    {
+      "id": "multi_species_cap",
+      "condition": "target_species contains rabbit AND target_species contains non_rabbit_species",
+      "cap_score": 75,
+      "message_fr": "Produit multi-espèces : adaptation lapin moins certaine."
+    }
+  ],
+  "grade_mapping": [
+    {
+      "min_score": 85,
+      "max_score": 100,
+      "grade": "A",
+      "label_fr": "Très bon dans sa catégorie"
+    },
+    {
+      "min_score": 70,
+      "max_score": 84,
+      "grade": "B",
+      "label_fr": "Bon / acceptable"
+    },
+    {
+      "min_score": 55,
+      "max_score": 69,
+      "grade": "C",
+      "label_fr": "Moyen, à limiter"
+    },
+    {
+      "min_score": 35,
+      "max_score": 54,
+      "grade": "D",
+      "label_fr": "Déconseillé"
+    },
+    {
+      "min_score": 0,
+      "max_score": 34,
+      "grade": "E",
+      "label_fr": "À éviter"
+    }
+  ],
+  "confidence_mapping": [
+    {
+      "condition": "label_transparency >= 12 AND data_confidence >= 4",
+      "confidence": "high"
+    },
+    {
+      "condition": "label_transparency >= 7 AND data_confidence >= 2",
+      "confidence": "medium"
+    },
+    {
+      "condition": "label_transparency < 7 OR data_confidence < 2",
+      "confidence": "low"
+    }
+  ],
+  "mandatory_output": {
+    "fields": [
+      "score",
+      "grade",
+      "label_fr",
+      "confidence",
+      "product_type",
+      "subscores",
+      "caps_applied",
+      "positive_points",
+      "negative_points",
+      "missing_data",
+      "usage_warning_fr",
+      "score_version"
+    ],
+    "usage_warning_by_product_type": {
+      "hay": "Le foin adapté peut être donné à volonté si le lapin le tolère et s'il est de bonne qualité.",
+      "pellet_uniform": "Même bien noté, un granulé reste un complément. Le foin doit rester la base de l'alimentation.",
+      "muesli_mix": "Les mélanges peuvent favoriser le tri alimentaire et ne sont pas recommandés comme base.",
+      "treat": "Même bien notée, une friandise reste occasionnelle.",
+      "fresh_greens": "La verdure doit être introduite progressivement et diversifiée.",
+      "supplement": "Un complément ne doit pas être utilisé sans besoin identifié ou conseil adapté.",
+      "unknown": "Type de produit inconnu : interprétation limitée."
+    }
+  },
+  "known_missing_or_deferred_v1": [
+    "No numeric sugar threshold for adult rabbit scoring in current requirements pack; use ingredient sugar flags and transparency only.",
+    "No full toxic plant database embedded in this V1; requires a separate ingredient safety table.",
+    "No breed/weight/pathology personalization in V1.",
+    "No automatic dry matter conversion unless moisture is provided.",
+    "No veterinary emergency advice scoring."
+  ]
+}

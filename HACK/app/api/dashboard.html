@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rabbit Scan — Dashboard</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #0f172a; color: #e2e8f0; min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  .header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid #1e293b; }
+  .header h1 { font-size: 24px; background: linear-gradient(135deg, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .header .sub { color: #64748b; font-size: 14px; }
+
+  .form-card {
+    background: #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 24px;
+    display: flex; flex-wrap: wrap; align-items: end; gap: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group label { font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
+  .form-group select, .form-group input {
+    background: #0f172a; border: 1px solid #334155; border-radius: 8px;
+    padding: 10px 14px; color: #e2e8f0; font-size: 14px; min-width: 250px;
+  }
+  .form-group select:focus, .form-group input:focus { outline: none; border-color: #38bdf8; }
+  .btn {
+    background: linear-gradient(135deg, #38bdf8, #818cf8); color: #0f172a;
+    border: none; border-radius: 8px; padding: 10px 28px; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: opacity .2s, transform .1s;
+  }
+  .btn:hover { opacity: .9; }
+  .btn:active { transform: scale(.97); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-secondary { background: #334155; color: #e2e8f0; }
+  .btn-secondary:hover { opacity: .8; }
+
+  .status-bar {
+    display: none; background: #1e293b; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px;
+    font-size: 14px; align-items: center; gap: 10px;
+  }
+  .status-bar.active { display: flex; }
+  .spinner { width: 18px; height: 18px; border: 2px solid #334155; border-top-color: #38bdf8; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .status-bar .msg { color: #94a3b8; }
+  .status-bar .error { color: #f87171; }
+
+  .agent-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media (max-width: 900px) { .agent-grid { grid-template-columns: 1fr; } }
+
+  .agent-card {
+    background: #1e293b; border-radius: 12px; overflow: hidden;
+    border-top: 3px solid #334155;
+  }
+.card-besoins { border-top-color: #38bdf8; }
+.card-personnel { border-top-color: #f59e0b; }
+.card-produit { border-top-color: #a78bfa; }
+.card-comparateur { border-top-color: #34d399; }
+
+  .agent-header {
+    padding: 14px 16px; display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid #0f172a;
+  }
+  .icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+.card-besoins .icon { background: #075985; }
+.card-personnel .icon { background: #92400e; }
+.card-produit .icon { background: #5b21b6; }
+.card-comparateur .icon { background: #065f46; }
+
+  .agent-name { font-weight: 600; font-size: 14px; }
+  .agent-desc { font-size: 11px; color: #64748b; }
+
+  .steps { padding: 8px; max-height: 500px; overflow-y: auto; }
+  .step {
+    background: #0f172a; border-radius: 8px; padding: 10px 12px; margin-bottom: 6px;
+    border-left: 3px solid #334155;
+  }
+  .step:last-child { margin-bottom: 0; }
+
+  .step-head {
+    display: flex; align-items: center; gap: 8px; font-size: 12px; color: #94a3b8; margin-bottom: 4px;
+  }
+  .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 20px; height: 20px; border-radius: 50%; font-size: 11px; font-weight: 700;
+    background: #334155; color: #e2e8f0; flex-shrink: 0;
+  }
+  .step-name { color: #e2e8f0; font-weight: 500; }
+
+  .step-desc { font-size: 12px; color: #64748b; margin-bottom: 6px; padding-left: 28px; }
+
+  .toggle {
+    background: none; border: none; color: #38bdf8; font-size: 11px; cursor: pointer; padding: 2px 0 2px 28px;
+  }
+  .toggle:hover { text-decoration: underline; }
+
+  .detail {
+    display: none; margin-top: 8px; padding: 8px; background: #1e293b;
+    border-radius: 6px; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow: auto;
+  }
+  .detail.open { display: block; }
+
+  .rec-card {
+    background: #1e293b; border-radius: 12px; padding: 20px;
+    border-top: 3px solid #f59e0b;
+  }
+  .rec-card h3 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .badge {
+    display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .badge.ok { background: #065f46; color: #6ee7b7; }
+  .badge.ko { background: #7f1d1d; color: #fca5a5; }
+
+  .rec-field { margin-bottom: 10px; }
+  .rec-field .label { font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; }
+  .rec-field .value { font-size: 14px; line-height: 1.5; }
+  .rec-field .warn { color: #f87171; }
+  .rec-field .good { color: #6ee7b7; }
+
+  .alt-item { background: #0f172a; border-radius: 8px; padding: 10px 12px; margin-top: 6px; }
+  .alt-item .alt-name { font-weight: 600; font-size: 13px; }
+  .alt-item .alt-why { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+  /* Score card */
+  .score-card {
+    background: #0f172a; border-radius: 10px; padding: 16px; margin-bottom: 12px;
+    border: 1px solid #334155;
+  }
+  .score-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .score-total { font-size: 28px; font-weight: 800; }
+  .score-grade {
+    font-size: 22px; font-weight: 800; color: #0f172a;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .score-bar { height: 8px; background: #1e293b; border-radius: 4px; margin-bottom: 10px; }
+  .score-fill { height: 100%; border-radius: 4px; transition: width .5s; }
+  .score-detail {
+    display: flex; align-items: center; gap: 10px;
+    padding: 4px 0; font-size: 12px; border-bottom: 1px solid #1e293b;
+  }
+  .score-detail:last-child { border-bottom: none; }
+  .score-name { font-weight: 600; width: 80px; text-transform: capitalize; }
+  .score-val { color: #94a3b8; width: 60px; }
+  .score-pts { margin-left: auto; font-weight: 500; }
+
+  /* Tests section */
+  .tests-card {
+    background: #1e293b; border-radius: 12px; padding: 20px; margin-top: 24px;
+    border-top: 3px solid #818cf8;
+  }
+  .tests-card h3 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .tests-summary {
+    display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .tests-summary .stat {
+    background: #0f172a; border-radius: 8px; padding: 10px 16px; text-align: center; min-width: 100px;
+  }
+  .tests-summary .stat .num { font-size: 24px; font-weight: 700; }
+  .tests-summary .stat .lbl { font-size: 11px; color: #64748b; text-transform: uppercase; }
+  .stat-total .num { color: #38bdf8; }
+  .stat-ok .num { color: #6ee7b7; }
+  .stat-ko .num { color: #f87171; }
+
+  .test-row {
+    background: #0f172a; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 12px; cursor: pointer;
+    transition: border .2s; border: 1px solid transparent;
+  }
+  .test-row:hover { border-color: #334155; }
+  .test-row .test-icon { font-size: 18px; flex-shrink: 0; }
+  .test-row .test-desc { flex: 1; font-size: 13px; }
+  .test-row .test-produit { font-size: 11px; color: #64748b; }
+  .test-row .test-badge { flex-shrink: 0; }
+
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>Rabbit Scan · Dashboard</h1>
+      <div class="sub">Analyse produit avec IA (Gemini) + tests d'intégration</div>
+    </div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-group">
+      <label>Code-barres (saisie libre)</label>
+      <input type="text" id="barcode" list="barcodeList" placeholder="ex: 3229820019307" value="3229820019307">
+      <datalist id="barcodeList">
+        <option value="3229820019307">Flocons d'avoine (fibres=11, sucre=1.7)</option>
+        <option value="3168930010265">Cruesly mélange de noix (fibres=10, sucre=12)</option>
+        <option value="301123">301123 — Granulés de Timothy Meadow (MOCK)</option>
+        <option value="301124">301124 — Bouchées Alfalfa Blend (MOCK)</option>
+        <option value="301125">301125 — Mélange de céréales croustillantes (MOCK)</option>
+        <option value="301126">301126 — Friandises à la carotte (MOCK)</option>
+      </datalist>
+    </div>
+    <div class="form-group">
+      <label>Lapin</label>
+      <select id="lapin">
+        <option value="lapin_healthy">Panpan (adulte sain)</option>
+        <option value="lapin_stones">Gribouille (calculs urinaires)</option>
+        <option value="lapin_allergic">Cacahuète (allergique carotte)</option>
+        <option value="lapin_young">Junior (jeune en croissance)</option>
+      </select>
+    </div>
+    <button class="btn" id="runBtn" onclick="lancer()">Lancer l'analyse</button>
+    <button class="btn btn-secondary" id="testBtn" onclick="lancerTests()">▶ Lancer les 5 tests (vrais barcodes OFF)</button>
+  </div>
+
+  <div class="status-bar" id="statusBar">
+    <div class="spinner"></div>
+    <span class="msg" id="statusMsg">Analyse en cours...</span>
+  </div>
+
+  <div class="agent-grid hidden" id="agentGrid">
+    <div class="agent-card card-besoins">
+      <div class="agent-header">
+        <div class="icon">📋</div>
+        <div>
+          <div class="agent-name">Team Besoins</div>
+          <div class="agent-desc">IA Gemini → besoins nutritionnels idéaux</div>
+        </div>
+      </div>
+      <div class="steps" id="besoinsSteps"></div>
+    </div>
+    <div class="agent-card card-personnel">
+      <div class="agent-header">
+        <div class="icon">🐰</div>
+        <div>
+          <div class="agent-name">Team Personnel</div>
+          <div class="agent-desc">IA Gemini → profil personnalisé de l'animal</div>
+        </div>
+      </div>
+      <div class="steps" id="personnelSteps"></div>
+    </div>
+    <div class="agent-card card-produit">
+      <div class="agent-header">
+        <div class="icon">📦</div>
+        <div>
+          <div class="agent-name">Team Produit</div>
+          <div class="agent-desc">IA Gemini → analyse du produit</div>
+        </div>
+      </div>
+      <div class="steps" id="produitSteps"></div>
+    </div>
+    <div class="agent-card card-comparateur">
+      <div class="agent-header">
+        <div class="icon">⚖️</div>
+        <div>
+          <div class="agent-name">Team Comparateur</div>
+          <div class="agent-desc">IA Gemini → décision finale</div>
+        </div>
+      </div>
+      <div class="steps" id="comparateurSteps"></div>
+    </div>
+  </div>
+
+  <div class="rec-card hidden" id="recCard"></div>
+
+  <!-- Tests section -->
+  <div class="tests-card hidden" id="testsCard">
+    <h3>🧪 Résultats des tests d'intégration</h3>
+    <div class="tests-summary" id="testsSummary"></div>
+    <div id="testsList"></div>
+  </div>
+</div>
+
+<script>
+const MAP = { "Besoins": "besoinsSteps", "Personnel": "personnelSteps", "Produit": "produitSteps", "Comparateur": "comparateurSteps" };
+
+function afficherEtape(s, i) {
+  const json = JSON.stringify(s, null, 2);
+  return `<div class="step">
+    <div class="step-head">
+      <span class="step-num">${i+1}</span>
+      <span class="step-name">${s.etape}</span>
+    </div>
+    <div class="step-desc">${s.description}</div>
+    <button class="toggle" onclick="basculer(this)">Voir les données</button>
+    <div class="detail">${json}</div>
+  </div>`;
+}
+
+function basculer(btn) {
+  const d = btn.nextElementSibling;
+  d.classList.toggle("open");
+  btn.textContent = d.classList.contains("open") ? "Masquer" : "Voir les données";
+}
+
+function afficherRec(r) {
+  const ok = r.est_adapte;
+  const alertes = (r.alertes || []).map(a => `<div class="value warn">⚠ ${a}</div>`).join("");
+  const alts = (r.alternatives || []).length
+    ? r.alternatives.map(a =>
+        `<div class="alt-item"><div class="alt-name">${a.nom}</div><div class="alt-why">${a.raison}</div></div>`
+      ).join("")
+    : '<div style="color:#64748b;font-size:13px">Aucune alternative</div>';
+
+  const score = r.score;
+  const scoreHtml = score ? afficherScore(score) : "";
+
+  return `
+    <h3>
+      Résultat — ${r.nom_produit}
+      <span class="badge ${ok ? 'ok' : 'ko'}">${ok ? '✅ Adapté' : '❌ Déconseillé'}</span>
+    </h3>
+    ${scoreHtml}
+    <div class="rec-field"><div class="label">Résumé</div><div class="value">${r.resume}</div></div>
+    <div class="rec-field"><div class="label">Conseil</div><div class="value">${r.conseil}</div></div>
+    ${alertes ? `<div class="rec-field"><div class="label">Alertes</div>${alertes}</div>` : ""}
+    <div class="rec-field"><div class="label">Alternatives</div>${alts}</div>
+  `;
+}
+
+function afficherScore(s) {
+  const gradeColor = {A:"#22c55e", B:"#86efac", C:"#facc15", D:"#fb923c", E:"#ef4444"};
+  const c = gradeColor[s.grade] || "#94a3b8";
+  const details = (s.details || []).map(d => {
+    const st = d.statut === "ok" ? "✅" : d.statut === "below_min" ? "⬇" : d.statut === "above_max" ? "⬆" : "❓";
+    return `<div class="score-detail"><span class="score-name">${d.nom}</span>
+      <span class="score-val">${d.valeur_produit}${d.unite}</span>
+      <span class="score-pts">${d.points}/25 ${st}</span></div>`;
+  }).join("");
+  return `<div class="score-card">
+    <div class="score-header">
+      <span class="score-total" style="color:${c}">${s.total}/100</span>
+      <span class="score-grade" style="background:${c}">${s.grade}</span>
+    </div>
+    <div class="score-bar"><div class="score-fill" style="width:${Math.min(s.total,100)}%;background:${c}"></div></div>
+    ${details}
+  </div>`;
+}
+
+async function lancer() {
+  const btn = document.getElementById("runBtn");
+  const bar = document.getElementById("statusBar");
+  const msg = document.getElementById("statusMsg");
+  const grid = document.getElementById("agentGrid");
+  const rec = document.getElementById("recCard");
+
+  btn.disabled = true;
+  bar.classList.add("active");
+  msg.textContent = "Analyse en cours...";
+  msg.className = "msg";
+  grid.classList.add("hidden");
+  rec.classList.add("hidden");
+
+  ["besoinsSteps","personnelSteps","produitSteps","comparateurSteps"].forEach(id => document.getElementById(id).innerHTML = "");
+
+  const barcode = document.getElementById("barcode").value;
+  const lapin = document.getElementById("lapin").value;
+
+  try {
+    const res = await fetch("/debug-scan", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({barcode, rabbit_id: lapin}),
+    });
+    if (!res.ok) {
+      const e = await res.json();
+      throw new Error(e.detail || "Erreur");
+    }
+    const data = await res.json();
+    const traces = data.traces || [];
+
+    for (const t of traces) {
+      const cont = document.getElementById(MAP[t.agent]);
+      if (cont) cont.innerHTML += afficherEtape(t, cont.children.length);
+    }
+
+    rec.innerHTML = afficherRec(data.recommandation);
+    grid.classList.remove("hidden");
+    rec.classList.remove("hidden");
+    bar.classList.remove("active");
+  } catch (err) {
+    msg.textContent = "Erreur : " + err.message;
+    msg.className = "msg error";
+    bar.classList.remove("active");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function lancerTests() {
+  const btn = document.getElementById("testBtn");
+  const bar = document.getElementById("statusBar");
+  const msg = document.getElementById("statusMsg");
+  const testsCard = document.getElementById("testsCard");
+  const testsList = document.getElementById("testsList");
+  const testsSummary = document.getElementById("testsSummary");
+
+  btn.disabled = true;
+  bar.classList.add("active");
+  msg.textContent = "Exécution des 5 tests sur vrais produits OFF...";
+  msg.className = "msg";
+  testsCard.classList.add("hidden");
+  testsList.innerHTML = "";
+
+  try {
+    const res = await fetch("/run-tests", { method: "POST" });
+    if (!res.ok) throw new Error("Erreur serveur");
+    const data = await res.json();
+
+    testsSummary.innerHTML = `
+      <div class="stat stat-total"><div class="num">${data.total}</div><div class="lbl">Total</div></div>
+      <div class="stat stat-ok"><div class="num">${data.reussis}</div><div class="lbl">Réussis</div></div>
+      <div class="stat stat-ko"><div class="num">${data.echecs}</div><div class="lbl">Échecs</div></div>
+    `;
+
+    testsList.innerHTML = data.resultats.map((r, i) => `
+      <div class="test-row" onclick="chargerTest('${r.barcode}', '${r.lapin_id}')">
+        <div class="test-icon">${r.passe ? '✅' : '❌'}</div>
+        <div>
+          <div class="test-desc">${r.description}</div>
+          <div class="test-produit">${r.nom_produit} — attendu: ${r.attendu ? 'Adapté' : 'Déconseillé'}, reçu: ${r.est_adapte ? 'Adapté' : 'Déconseillé'}</div>
+        </div>
+        <div class="test-badge"><span class="badge ${r.passe ? 'ok' : 'ko'}">${r.passe ? 'OK' : 'ÉCHEC'}</span></div>
+      </div>
+    `).join("");
+
+    testsCard.classList.remove("hidden");
+    bar.classList.remove("active");
+  } catch (err) {
+    msg.textContent = "Erreur : " + err.message;
+    msg.className = "msg error";
+    bar.classList.remove("active");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function chargerTest(barcode, lapinId) {
+  document.getElementById("barcode").value = barcode;
+  document.getElementById("lapin").value = lapinId;
+  lancer();
+}
+</script>
+</body>
+</html>

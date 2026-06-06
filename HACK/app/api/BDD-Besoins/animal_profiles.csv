@@ -1,0 +1,2 @@
+id,species_id,life_stage,physiological_status,label_fr,description
+rabbit_adult_maintenance,rabbit,adult,maintenance,Lapin adulte en entretien,"Profil initial pour lapin adulte non gestant, non lactant, sans pathologie connue."

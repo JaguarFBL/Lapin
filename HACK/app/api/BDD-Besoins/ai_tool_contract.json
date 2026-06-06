@@ -1,0 +1,29 @@
+{
+  "get_requirements": {
+    "description": "Return structured requirements for a species/profile.",
+    "input": {
+      "species_id": "rabbit",
+      "animal_profile_id": "rabbit_adult_maintenance",
+      "priority": "primary"
+    },
+    "sql_view": "v_primary_adult_requirements",
+    "warning": "Unit and basis compatibility must be checked before product comparison."
+  },
+  "get_product_thresholds": {
+    "description": "Return practical product thresholds, especially for commercial uniform pellets.",
+    "input": {
+      "species_id": "rabbit",
+      "animal_profile_id": "rabbit_adult_maintenance",
+      "basis": "commercial_uniform_pellet"
+    },
+    "sql_view": "v_product_thresholds"
+  },
+  "get_practical_ration": {
+    "description": "Return ration guidance such as hay fraction, greens, pellets and water.",
+    "input": {
+      "species_id": "rabbit",
+      "animal_profile_id": "rabbit_adult_maintenance"
+    },
+    "sql_view": "v_practical_ration"
+  }
+}
